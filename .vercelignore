@@ -4,9 +4,9 @@
 db.sqlite3
 media/
 staticfiles/
-seed_images/
 venv/
 .venv/
 __pycache__/
 *.pyc
 .git/
+seed_images/

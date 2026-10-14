@@ -155,6 +155,11 @@ STORAGES = {
 # Uploaded photos (products, categories, reviews). Vercel's disk is read-only and temporary, so on Vercel
 # they MUST go to an S3-compatible bucket (Supabase Storage, Cloudflare R2, AWS S3, ...).
 MEDIA_STORAGE_CONFIGURED = bool(env("AWS_STORAGE_BUCKET_NAME"))
+if ON_VERCEL and not MEDIA_STORAGE_CONFIGURED:
+    # Demo mode: no bucket. Photos that ship with the site live in static/media/ and are served by Vercel's CDN.
+    # Photos uploaded later through the dashboard go to a temporary folder and will NOT last.
+    MEDIA_URL = "/static/media/"
+    MEDIA_ROOT = Path("/tmp/media")
 if MEDIA_STORAGE_CONFIGURED:
     STORAGES["default"] = {"BACKEND": "storages.backends.s3.S3Storage"}
     AWS_STORAGE_BUCKET_NAME = env("AWS_STORAGE_BUCKET_NAME")
@@ -229,8 +234,6 @@ def validate_production():
         problems.append("DJANGO_SECRET_KEY is not set.")
     if ON_VERCEL and not DATABASE_URL:
         problems.append("DATABASE_URL is not set (Vercel cannot use SQLite).")
-    if ON_VERCEL and not MEDIA_STORAGE_CONFIGURED:
-        problems.append("AWS_STORAGE_BUCKET_NAME is not set (uploaded photos would be lost on Vercel).")
     if problems:
         from django.core.exceptions import ImproperlyConfigured
         raise ImproperlyConfigured("Deployment settings missing: " + " ".join(problems))

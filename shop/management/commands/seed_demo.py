@@ -46,6 +46,8 @@ class Command(BaseCommand):
         parser.add_argument("--with-demo-users", action="store_true", help="Also create demo customers and reviews (do NOT use in production).")
 
     def handle(self, *args, **opts):
+        if not settings.MEDIA_STORAGE_CONFIGURED:
+            self.stdout.write("No photo bucket set: demo photos will be served from static/media/ (they ship with the site).")
         cfg = SiteConfig.get()
         self.stdout.write("Store settings ready (edit in /admin/shop/siteconfig/).")
 
@@ -53,8 +55,12 @@ class Command(BaseCommand):
         for i, (name, desc, img, pos) in enumerate(CATEGORIES):
             c, created = Category.objects.get_or_create(name=name, defaults={"description": desc, "sort_order": i, "image_position": pos})
             if created and (IMG / img).exists():
-                with open(IMG / img, "rb") as f:
-                    c.image.save(img, File(f), save=True)
+                if settings.MEDIA_STORAGE_CONFIGURED:
+                    with open(IMG / img, "rb") as f:
+                        c.image.save(img, File(f), save=True)
+                else:  # no bucket: images ship with the site as static files (static/media/...)
+                    c.image.name = f"categories/{img}"
+                    c.save()
             cats.append(c)
 
         for n, (name, ci, occ, fabric, color, img, pos, price, mrp, wh, gst, feat, desc) in enumerate(PRODUCTS, start=1):
@@ -63,8 +69,11 @@ class Command(BaseCommand):
             p = Product(name=name, sku=f"LS-{n:03d}", category=cats[ci], occasion=occ, fabric=fabric, color=color,
                         description=desc, price=Decimal(price), mrp=Decimal(mrp), wholesale_price=Decimal(wh),
                         wholesale_min_qty=6, gst_rate=Decimal(gst), stock=25, is_featured=feat, image_position=pos)
-            with open(IMG / img, "rb") as f:
-                p.image.save(img, File(f), save=False)
+            if settings.MEDIA_STORAGE_CONFIGURED:
+                with open(IMG / img, "rb") as f:
+                    p.image.save(img, File(f), save=False)
+            else:
+                p.image.name = f"products/{img}"
             p.save()
 
         if opts["with_demo_users"]:
