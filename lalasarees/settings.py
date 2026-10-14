@@ -226,14 +226,3 @@ if not DEBUG:
     SECURE_HSTS_SECONDS = 31536000
     SECURE_CONTENT_TYPE_NOSNIFF = True
 
-
-def validate_production():
-    """Called from wsgi.py when the site starts serving. Fails with a clear message instead of a mystery 500."""
-    problems = []
-    if not DEBUG and SECRET_KEY == INSECURE_DEFAULT_KEY:
-        problems.append("DJANGO_SECRET_KEY is not set.")
-    if ON_VERCEL and not DATABASE_URL:
-        problems.append("DATABASE_URL is not set (Vercel cannot use SQLite).")
-    if problems:
-        from django.core.exceptions import ImproperlyConfigured
-        raise ImproperlyConfigured("Deployment settings missing: " + " ".join(problems))
