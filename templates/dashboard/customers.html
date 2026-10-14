@@ -1,0 +1,14 @@
+{% extends 'dashboard/base.html' %}
+{% load shop_extras %}
+{% block title %}Customers{% endblock %}
+{% block content %}
+<h1>Customers</h1>
+<form class="filters-bar" method="get"><input type="search" name="q" value="{{ q }}" placeholder="Name, email, phone, business" aria-label="Search customers">
+  <select name="filter" aria-label="Filter"><option value="">Everyone</option><option value="pending" {% if filter == 'pending' %}selected{% endif %}>Wholesale pending</option><option value="wholesale" {% if filter == 'wholesale' %}selected{% endif %}>Wholesale approved</option></select><button class="btn ink sm" type="submit">Filter</button></form>
+<div class="panel"><div class="table-scroll"><table class="t"><thead><tr><th>Customer</th><th>Contact</th><th>Type</th><th class="r">Orders</th><th class="r">Paid</th><th></th></tr></thead><tbody>
+{% for u in page.object_list %}<tr><td><b>{{ u.get_full_name|default:u.email }}</b><div class="small muted">Joined {{ u.date_joined|date:"j M Y" }}</div></td><td>{{ u.email }}<div class="small muted">{{ u.phone }}</div></td>
+<td>{% if u.is_business %}{{ u.business_name }}<div class="small muted">{{ u.gstin|default:"No GSTIN" }}</div>{% else %}Retail{% endif %}</td><td class="r">{{ u.order_count }}</td><td class="r">{{ u.spent|default:0|inr }}</td>
+<td>{% if u.is_business %}<form method="post" action="{% url 'dash_customer_wholesale' u.pk %}" class="inline">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}">{% if u.wholesale_approved %}<button class="btn ghost sm" name="approve" value="0" type="submit">Remove wholesale</button>{% else %}<button class="btn sm" name="approve" value="1" type="submit">Approve wholesale</button>{% endif %}</form>{% endif %}</td></tr>
+{% empty %}<tr><td colspan="6" class="muted">No customers yet.</td></tr>{% endfor %}</tbody></table></div></div>
+{% include 'dashboard/_pager.html' %}
+{% endblock %}

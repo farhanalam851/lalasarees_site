@@ -1,0 +1,25 @@
+{% load static shop_extras %}<!doctype html>
+<html lang="en-IN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{% block title %}Dashboard{% endblock %} | Lala Sarees</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Marcellus&family=Mukta:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="{% static 'css/site.css' %}"></head>
+<body><div class="dash">
+<aside>
+  <a class="logo" href="{% url 'dash_home' %}">{% include 'partials/logo.html' %}<span><b style="font-size:1.35rem">Lala Sarees</b><small style="color:#9fb1b4">Store dashboard</small></span></a>
+  <nav aria-label="Dashboard">
+    <a href="{% url 'dash_home' %}" class="{% if nav == 'home' %}on{% endif %}">Overview</a>
+    <a href="{% url 'dash_orders' %}" class="{% if nav == 'orders' %}on{% endif %}">Orders {% if dash_counts.ship %}<span class="n">{{ dash_counts.ship }}</span>{% endif %}</a>
+    <a href="{% url 'dash_orders' %}?payment=verifying" class="{% if nav == 'verify' %}on{% endif %}">Verify payments {% if dash_counts.verify %}<span class="n">{{ dash_counts.verify }}</span>{% endif %}</a>
+    <a href="{% url 'dash_products' %}" class="{% if nav == 'products' %}on{% endif %}">Products</a>
+    <a href="{% url 'dash_customers' %}" class="{% if nav == 'customers' %}on{% endif %}">Customers {% if dash_counts.wholesale %}<span class="n">{{ dash_counts.wholesale }}</span>{% endif %}</a>
+    <a href="{% url 'dash_enquiries' %}" class="{% if nav == 'enquiries' %}on{% endif %}">Enquiries {% if dash_counts.enquiries %}<span class="n">{{ dash_counts.enquiries }}</span>{% endif %}</a>
+    <a href="{% url 'dash_reviews' %}" class="{% if nav == 'reviews' %}on{% endif %}">Reviews</a>
+    <a href="/admin/">Admin panel</a>
+    <a href="{% url 'home' %}">View store</a>
+  </nav>
+</aside>
+<main id="main">
+  {% if messages %}<ul class="messages" role="status">{% for m in messages %}<li class="msg {{ m.tags }}">{{ m }}</li>{% endfor %}</ul>{% endif %}
+  {% block content %}{% endblock %}
+</main></div></body></html>

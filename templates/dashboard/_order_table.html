@@ -1,0 +1,4 @@
+{% load shop_extras %}
+<div class="table-scroll"><table class="t"><thead><tr><th>Order</th><th>Customer</th><th>Placed</th><th>Status</th><th>Payment</th><th class="r">Total</th></tr></thead><tbody>
+{% for o in orders %}<tr><td><a href="{% url 'dash_order' o.number %}"><b>{{ o.number }}</b></a>{% if o.is_wholesale %} <span class="status paid">W</span>{% endif %}</td><td>{{ o.ship_name }}<div class="small muted">{{ o.user.email }}</div></td><td>{{ o.created|date:"j M, g:i a" }}</td><td><span class="status {{ o.status }}">{{ o.get_status_display }}</span></td><td><span class="status {{ o.payment_status }}">{{ o.get_payment_status_display }}</span><div class="small muted">{{ o.get_payment_method_display }}</div></td><td class="r">{{ o.total|inr:"2" }}</td></tr>
+{% empty %}<tr><td colspan="6" class="muted">No orders yet.</td></tr>{% endfor %}</tbody></table></div>

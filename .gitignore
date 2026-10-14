@@ -1,0 +1,12 @@
+.env
+.env.*
+!.env.example
+db.sqlite3
+media/*
+!media/.gitkeep
+staticfiles/
+venv/
+.venv/
+__pycache__/
+*.pyc
+.vercel

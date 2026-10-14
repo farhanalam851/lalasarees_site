@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% load shop_extras %}
+{% block robots %}noindex,nofollow{% endblock %}
+{% block title %}My orders | {{ site.store_name }}{% endblock %}
+{% block content %}
+<div class="wrap" style="padding-top:34px"><h1 style="font-size:2.2rem">My orders</h1>
+{% for o in orders %}
+  <div class="panel" style="margin-bottom:16px">
+    <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap">
+      <div><a href="{% url 'order_detail' o.number %}"><b>{{ o.number }}</b></a><div class="small muted">{{ o.created|date:"j M Y, g:i a" }}</div></div>
+      <div><span class="status {{ o.status }}">{{ o.get_status_display }}</span> <span class="status {{ o.payment_status }}">{{ o.get_payment_status_display }}</span></div>
+      <div><b>{{ o.total|inr:"2" }}</b></div>
+    </div>
+    <p class="small muted" style="margin:10px 0 0">{% for i in o.items.all %}{{ i.qty }} &times; {{ i.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+  </div>
+{% empty %}<div class="empty"><h2>No orders yet</h2><a class="btn" href="{% url 'catalog' %}">Start shopping</a></div>{% endfor %}
+</div>
+{% endblock %}

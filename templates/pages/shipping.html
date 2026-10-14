@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block meta_desc %}Shipping charges, delivery time, cash on delivery, returns and cancellations at Lala Sarees, Kanpur.{% endblock %}
+{% block title %}Shipping and returns | {{ site.store_name }}{% endblock %}
+{% block content %}
+<div class="wrap prose" style="padding-top:40px"><h1>Shipping and returns</h1>
+<h2>Shipping</h2>
+<p>We ship across India. Orders are packed within 1 to 2 working days. Delivery usually takes 3 to 7 working days depending on your location.</p>
+<p>Shipping is {{ site.shipping_local|floatformat:"0" }} rupees within Uttar Pradesh and {{ site.shipping_national|floatformat:"0" }} rupees for the rest of India. It is free on orders of {{ site.free_shipping_above|floatformat:"0" }} rupees and above. Cash on delivery adds a fee of {{ site.cod_fee|floatformat:"0" }} rupees.</p>
+<h2>Returns and exchanges</h2>
+<p>Call us within 48 hours of delivery if the saree is damaged or not as described, and share an unboxing video or photos. Unused sarees with tags can be exchanged within 7 days. Stitched blouses and pre-draped sarees that have been worn or altered cannot be returned.</p>
+<h2>Cancellations</h2>
+<p>You can cancel an order from My orders until it is packed. Paid orders are refunded to the original payment method within 5 to 7 working days.</p>
+<h2>Frequently asked questions</h2>
+<div class="faq">
+<details><summary>How long does delivery take?</summary><p>Orders are packed within 1 to 2 working days and usually arrive in 3 to 7 working days depending on your location.</p></details>
+<details><summary>How much does shipping cost?</summary><p>Shipping is {{ site.shipping_local|floatformat:"0" }} rupees within Uttar Pradesh and {{ site.shipping_national|floatformat:"0" }} rupees for the rest of India. It is free on orders of {{ site.free_shipping_above|floatformat:"0" }} rupees and above.</p></details>
+<details><summary>Do you offer cash on delivery?</summary><p>Yes, up to {{ site.cod_max_amount|floatformat:"0" }} rupees for retail orders, with a fee of {{ site.cod_fee|floatformat:"0" }} rupees. Wholesale orders are paid online or by bank transfer.</p></details>
+<details><summary>Can I return a saree?</summary><p>Unused sarees with tags can be exchanged within 7 days. Damaged or wrongly described items must be reported within 48 hours of delivery. Worn or altered stitched blouses and pre-draped sarees cannot be returned.</p></details>
+<details><summary>Do you sell wholesale?</summary><p>Yes. Create a business account with your GSTIN. After verification, wholesale prices apply automatically from the minimum quantity shown on each saree.</p></details>
+</div>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"How long does delivery take?","acceptedAnswer":{"@type":"Answer","text":"Orders are packed within 1 to 2 working days and usually arrive in 3 to 7 working days depending on your location."}},
+{"@type":"Question","name":"How much does shipping cost?","acceptedAnswer":{"@type":"Answer","text":"Shipping is {{ site.shipping_local|floatformat:"0" }} rupees within Uttar Pradesh and {{ site.shipping_national|floatformat:"0" }} rupees for the rest of India. It is free on orders of {{ site.free_shipping_above|floatformat:"0" }} rupees and above."}},
+{"@type":"Question","name":"Do you offer cash on delivery?","acceptedAnswer":{"@type":"Answer","text":"Yes, up to {{ site.cod_max_amount|floatformat:"0" }} rupees for retail orders, with a fee of {{ site.cod_fee|floatformat:"0" }} rupees. Wholesale orders are paid online or by bank transfer."}},
+{"@type":"Question","name":"Can I return a saree?","acceptedAnswer":{"@type":"Answer","text":"Unused sarees with tags can be exchanged within 7 days. Damaged or wrongly described items must be reported within 48 hours of delivery. Worn or altered stitched blouses and pre-draped sarees cannot be returned."}},
+{"@type":"Question","name":"Do you sell wholesale?","acceptedAnswer":{"@type":"Answer","text":"Yes. Create a business account with your GSTIN. After verification, wholesale prices apply automatically from the minimum quantity shown on each saree."}}
+]}</script>
+<p class="small muted">Policy text is a starting point. Edit templates/pages/shipping.html to match the store's actual policy.</p></div>
+{% endblock %}

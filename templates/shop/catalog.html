@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load shop_extras %}
+{% block content %}
+<div class="wrap">
+  <div class="page-head">
+    <nav class="crumbs" aria-label="Breadcrumb"><ol><li><a href="{% url 'home' %}">Home</a></li><li>/</li>{% if category %}<li><a href="{% url 'catalog' %}">Sarees</a></li><li>/</li><li aria-current="page">{{ category.name }}</li>{% else %}<li aria-current="page">Sarees</li>{% endif %}</ol></nav>
+    <h1 style="font-size:clamp(1.8rem,4vw,2.6rem)">{% if category %}{{ category.name }}{% elif q %}Results for "{{ q }}"{% else %}All sarees{% endif %}</h1>
+    {% if category.description %}<p class="muted">{{ category.description }}</p>{% endif %}
+  </div>
+  <div class="catalog">
+    <aside class="filters" id="filters" aria-label="Filters">
+      <form method="get">
+        {% if q %}<input type="hidden" name="q" value="{{ q }}">{% endif %}
+        <h3>Collections</h3>
+        <ul><li><a href="{% url 'catalog' %}" class="{% if not category %}on{% endif %}">All sarees</a></li>
+        {% for c in nav_categories %}<li><a href="{{ c.get_absolute_url }}" class="{% if category and category.pk == c.pk %}on{% endif %}">{{ c.name }}</a></li>{% endfor %}</ul>
+        <h3>Occasion</h3>
+        <select name="occasion"><option value="">Any</option>{% for key, label in occasions %}<option value="{{ key }}" {% if occasion == key %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+        <h3>Price (₹)</h3>
+        <div class="grid-2"><input type="number" name="min" min="0" placeholder="Min" value="{{ min }}" aria-label="Minimum price"><input type="number" name="max" min="0" placeholder="Max" value="{{ max }}" aria-label="Maximum price"></div>
+        <label style="display:flex;gap:8px;align-items:center;font-weight:500;margin-top:14px"><input type="checkbox" name="in_stock" value="1" style="width:auto" {% if in_stock %}checked{% endif %}> In stock only</label>
+        <input type="hidden" name="sort" value="{{ sort }}">
+        <button class="btn ink block sm" style="margin-top:16px" type="submit">Apply filters</button>
+      </form>
+    </aside>
+    <section aria-label="Products">
+      <div class="toolbar">
+        <span class="muted">{{ total }} saree{{ total|pluralize }}</span>
+        <button type="button" class="btn ghost sm filter-toggle" id="filter-toggle" aria-expanded="false" aria-controls="filters">Filters</button>
+        <form method="get"><label class="sr" for="sort">Sort by</label>
+          {% for k, v in request.GET.items %}{% if k != 'sort' and k != 'page' %}<input type="hidden" name="{{ k }}" value="{{ v }}">{% endif %}{% endfor %}
+          <select id="sort" name="sort" onchange="this.form.submit()">{% for k, label in sorts %}<option value="{{ k }}" {% if sort == k %}selected{% endif %}>{{ label }}</option>{% endfor %}</select><noscript><button class="btn sm">Sort</button></noscript></form>
+      </div>
+      {% if page.object_list %}
+        <div class="products">{% for p in page.object_list %}{% include 'partials/product_card.html' %}{% endfor %}</div>
+        {% if page.paginator.num_pages > 1 %}
+        <nav class="pager" aria-label="Pages">
+          {% if page.has_previous %}<a href="?{% qs_with page=page.previous_page_number %}">Previous</a>{% endif %}
+          <span class="cur">Page {{ page.number }} of {{ page.paginator.num_pages }}</span>
+          {% if page.has_next %}<a href="?{% qs_with page=page.next_page_number %}">Next</a>{% endif %}
+        </nav>{% endif %}
+      {% else %}
+        <div class="empty"><h3>No sarees match these filters</h3><p class="muted">Try removing a filter, or call us on {{ site.phone1 }} and we will help you find the right saree.</p><a class="btn" href="{% url 'catalog' %}">Clear filters</a></div>
+      {% endif %}
+    </section>
+  </div>
+</div>
+{% endblock %}

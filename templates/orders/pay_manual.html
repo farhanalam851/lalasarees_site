@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% load shop_extras %}
+{% block robots %}noindex,nofollow{% endblock %}
+{% block title %}Pay for order {{ order.number }}{% endblock %}
+{% block content %}
+<div class="wrap"><div class="auth">
+  <h1 style="font-size:2rem">Pay {{ order.total|inr:"2" }}</h1>
+  <p class="muted">Order {{ order.number }}. Your order is confirmed once we see the payment.</p>
+  {% if order.payment_method == 'upi' %}
+    {% if qr %}<div class="qr" role="img" aria-label="UPI QR code for {{ order.total }} rupees">{{ qr|safe }}</div>{% endif %}
+    <p class="center" style="margin-top:14px"><b>{{ config.upi_id }}</b><br><span class="small muted">Payee: {{ config.upi_name }}</span></p>
+    <p class="center"><a class="btn ink" href="{{ upi_link }}">Open my UPI app</a></p>
+    <p class="small muted center">On a phone, tap the button. On a computer, scan the QR with any UPI app. The amount is filled in for you.</p>
+  {% else %}
+    <div class="note" style="white-space:pre-line">{{ config.bank_details }}</div>
+    <p class="small muted">Use <b>{{ order.number }}</b> as the payment remark. NEFT, IMPS and RTGS are all fine.</p>
+  {% endif %}
+  <form method="post" style="margin-top:20px">{% csrf_token %}
+    <div class="field"><label for="reference">{% if order.payment_method == 'upi' %}UPI transaction ID (UTR){% else %}Transfer reference number{% endif %}</label>
+      <input id="reference" name="reference" type="text" required inputmode="{% if order.payment_method == 'upi' %}numeric{% else %}text{% endif %}" {% if order.payment_method == 'upi' %}pattern="\d{12}" maxlength="12"{% endif %} autocomplete="off">
+      <div class="help">{% if order.payment_method == 'upi' %}A 12-digit number shown in your UPI app after paying.{% else %}Found in your bank statement or transfer receipt.{% endif %}</div></div>
+    <button class="btn block" type="submit">I have paid</button>
+  </form>
+  <p class="small center" style="margin-top:14px"><a href="{% url 'order_detail' order.number %}">Pay later from my orders</a></p>
+</div></div>
+{% endblock %}

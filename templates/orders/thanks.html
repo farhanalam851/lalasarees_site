@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% load shop_extras %}
+{% block title %}Thank you for your order | Lala Sarees{% endblock %}
+{% block robots %}noindex,nofollow{% endblock %}
+{% block content %}
+<div class="wrap"><div class="auth center" style="max-width:640px">
+  <div class="arch-frame" style="width:84px;height:104px;margin:0 auto 18px;display:grid;place-items:center;font-size:2rem;color:var(--ok)" aria-hidden="true">&#10003;</div>
+  <h1 style="font-size:2.2rem">Thank you, {{ order.user.display_name }}</h1>
+  <p>Your order <b>{{ order.number }}</b> for <b>{{ order.total|inr:"2" }}</b> is in.
+  {% if order.payment_method == 'cod' %}Please keep the amount ready in cash for delivery.
+  {% elif order.payment_status == 'paid' %}We have received your payment.
+  {% elif order.payment_status == 'verifying' %}We are checking your payment and will confirm shortly.{% endif %}</p>
+  <p class="muted">A confirmation has been emailed to {{ order.user.email }}. We will message you again when it ships to {{ order.ship_city }}.</p>
+  <div class="panel" style="text-align:left;margin:20px 0">{% for i in items %}<div class="sum" style="margin-bottom:6px"><div><span>{{ i.qty }} &times; {{ i.name }}</span><span>{{ i.line_total|inr }}</span></div></div>{% endfor %}</div>
+  <p><a class="btn" href="{% url 'order_detail' order.number %}">Track this order</a> <a class="btn ghost" href="{% url 'catalog' %}">Keep shopping</a></p>
+</div></div>
+{% endblock %}
+{% block scripts %}<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var k = 'ls_tracked_{{ order.number }}'; try { if (sessionStorage.getItem(k)) return; sessionStorage.setItem(k, '1'); } catch (e) {}
+  if (window.lsTrack) lsTrack('purchase', { transaction_id: '{{ order.number }}', value: {{ order.total|stringformat:"s" }}, currency: 'INR' });
+});
+</script>{% endblock %}

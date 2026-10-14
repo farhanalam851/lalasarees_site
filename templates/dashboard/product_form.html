@@ -1,0 +1,22 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}{% if product %}Edit{% else %}Add{% endif %} saree{% endblock %}
+{% block content %}
+<p><a href="{% url 'dash_products' %}">&larr; Products</a></p>
+<h1>{% if product %}Edit {{ product.name|truncatechars:40 }}{% else %}Add a saree{% endif %}</h1>
+<form method="post" enctype="multipart/form-data" class="panel" style="max-width:880px">{% csrf_token %}{{ form.non_field_errors }}
+  {% if product and product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}" style="width:120px;border-radius:8px;margin-bottom:14px">{% endif %}
+  <div class="grid-2">{% include 'partials/field.html' with field=form.name %}{% include 'partials/field.html' with field=form.sku %}</div>
+  <div class="grid-2">{% include 'partials/field.html' with field=form.category %}{% include 'partials/field.html' with field=form.occasion %}</div>
+  <div class="grid-2">{% include 'partials/field.html' with field=form.fabric %}{% include 'partials/field.html' with field=form.color %}</div>
+  {% include 'partials/field.html' with field=form.description %}
+  <div class="grid-2">{% include 'partials/field.html' with field=form.includes %}{% include 'partials/field.html' with field=form.care %}</div>
+  <div class="grid-2">{% include 'partials/field.html' with field=form.image %}{% include 'partials/field.html' with field=form.image_position %}</div>
+  <div class="grid-2">{% include 'partials/field.html' with field=form.price %}{% include 'partials/field.html' with field=form.mrp %}</div>
+  <div class="grid-2">{% include 'partials/field.html' with field=form.wholesale_price %}{% include 'partials/field.html' with field=form.wholesale_min_qty %}</div>
+  <div class="grid-2">{% include 'partials/field.html' with field=form.gst_rate %}{% include 'partials/field.html' with field=form.hsn_code %}</div>
+  {% include 'partials/field.html' with field=form.stock %}
+  {% include 'partials/field.html' with field=form.is_active %}{% include 'partials/field.html' with field=form.is_featured %}
+  {% if product %}<p class="small muted">To add more photos to this saree, use <a href="/admin/shop/product/{{ product.pk }}/change/">the admin panel</a>.</p>{% endif %}
+  <button class="btn ink" type="submit">Save saree</button>
+</form>
+{% endblock %}

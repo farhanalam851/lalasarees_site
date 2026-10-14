@@ -1,0 +1,31 @@
+{% load static shop_extras %}<!doctype html>
+<html lang="en-IN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Invoice {{ order.number }}</title>
+<style>
+body{font-family:Arial,Helvetica,sans-serif;color:#111;margin:0;background:#eee;font-size:14px}
+.sheet{max-width:860px;margin:20px auto;background:#fff;padding:34px;border-top:6px solid #C79A3B}
+h1{margin:0;font-size:24px;color:#0F3A41} table{width:100%;border-collapse:collapse;margin-top:16px}
+th,td{border:1px solid #ccc;padding:7px 8px;text-align:left;vertical-align:top} th{background:#f4efe6} .r{text-align:right}
+.row{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}.small{font-size:12px;color:#555}
+.btn{display:inline-block;margin:10px auto;padding:9px 18px;background:#0F3A41;color:#fff;border-radius:6px;text-decoration:none;cursor:pointer;border:0;font-size:14px}
+.tw{overflow-x:auto}
+@media print{body{background:#fff}.sheet{margin:0;box-shadow:none;max-width:none}.no-print{display:none}}
+</style></head><body>
+<div class="no-print" style="text-align:center"><button class="btn" onclick="window.print()">Print / Save as PDF</button> <a class="btn" href="{% url 'order_detail' order.number %}">Back to order</a></div>
+<div class="sheet">
+  <div class="row"><div><h1>{{ config.store_name }}</h1><div>{{ config.address|linebreaksbr }}</div><div>Phone: {{ config.phone1 }}{% if config.phone2 %}, {{ config.phone2 }}{% endif %}</div>{% if config.gstin %}<div><b>GSTIN: {{ config.gstin }}</b></div>{% endif %}</div>
+  <div style="text-align:right"><h1 style="font-size:20px">{% if order.buyer_gstin %}TAX INVOICE{% else %}TAX INVOICE / BILL OF SUPPLY{% endif %}</h1><div>Invoice no: <b>{{ order.number }}</b></div><div>Date: {{ order.created|date:"d M Y" }}</div><div>Payment: {{ order.get_payment_method_display }} ({{ order.get_payment_status_display }})</div></div></div>
+  <div class="row" style="margin-top:18px"><div><b>Bill to / Ship to</b><br>{{ order.ship_name }}{% if order.buyer_business %}<br>{{ order.buyer_business }}{% endif %}<br>{{ order.ship_line1 }}{% if order.ship_line2 %}, {{ order.ship_line2 }}{% endif %}<br>{{ order.ship_city }}, {{ order.ship_state_name }} - {{ order.ship_pincode }}<br>Phone: {{ order.ship_phone }}{% if order.buyer_gstin %}<br>GSTIN: {{ order.buyer_gstin }}{% endif %}</div>
+  <div><b>Place of supply</b><br>{{ order.ship_state_name }} ({{ order.ship_state_code }})</div></div>
+  <div class="tw"><table>
+    <thead><tr><th>#</th><th>Description</th><th>HSN</th><th class="r">Qty</th><th class="r">Rate</th><th class="r">Taxable</th><th class="r">GST %</th><th class="r">GST</th><th class="r">Amount</th></tr></thead>
+    <tbody>{% for i in order.items.all %}<tr><td>{{ forloop.counter }}</td><td>{{ i.name }}<div class="small">{{ i.sku }}</div></td><td>{{ i.hsn_code }}</td><td class="r">{{ i.qty }}</td><td class="r">{{ i.unit_price|inr:"2" }}</td><td class="r">{{ i.taxable_value|inr:"2" }}</td><td class="r">{{ i.gst_rate|floatformat:"-2" }}</td><td class="r">{{ i.gst_amount|inr:"2" }}</td><td class="r">{{ i.line_total|inr:"2" }}</td></tr>{% endfor %}</tbody>
+    <tfoot>
+      <tr><td colspan="8" class="r">Taxable value</td><td class="r">{{ order.taxable_total|inr:"2" }}</td></tr>
+      {% if order.igst %}<tr><td colspan="8" class="r">IGST</td><td class="r">{{ order.igst|inr:"2" }}</td></tr>{% else %}<tr><td colspan="8" class="r">CGST</td><td class="r">{{ order.cgst|inr:"2" }}</td></tr><tr><td colspan="8" class="r">SGST</td><td class="r">{{ order.sgst|inr:"2" }}</td></tr>{% endif %}
+      <tr><td colspan="8" class="r">Shipping</td><td class="r">{{ order.shipping_charge|inr:"2" }}</td></tr>
+      {% if order.cod_fee %}<tr><td colspan="8" class="r">COD fee</td><td class="r">{{ order.cod_fee|inr:"2" }}</td></tr>{% endif %}
+      <tr><th colspan="8" class="r">Grand total</th><th class="r">{{ order.total|inr:"2" }}</th></tr>
+    </tfoot></table></div>
+  <p class="small" style="margin-top:18px">Goods once sold can be returned only as per our returns policy. This is a computer-generated invoice.</p>
+</div></body></html>

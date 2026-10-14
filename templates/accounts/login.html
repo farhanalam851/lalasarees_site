@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block robots %}noindex,nofollow{% endblock %}
+{% block title %}Log in | {{ site.store_name }}{% endblock %}
+{% block content %}
+<div class="wrap"><div class="auth">
+  <h1 style="font-size:2rem">Log in</h1>
+  <form method="post">{% csrf_token %}
+    {% include "partials/form_errors.html" %}
+    {% for field in form %}{% include 'partials/field.html' %}{% endfor %}
+    <input type="hidden" name="next" value="{{ next }}">
+    <button class="btn block" type="submit">Log in</button>
+  </form>
+  <p style="margin-top:18px" class="small"><a href="{% url 'password_reset' %}">Forgot your password?</a></p>
+  <p class="small">New here? <a href="{% url 'register' %}{% if next %}?next={{ next|urlencode }}{% endif %}">Create an account</a> or <a href="{% url 'register' %}?type=business">open a business account</a>.</p>
+</div></div>
+{% endblock %}

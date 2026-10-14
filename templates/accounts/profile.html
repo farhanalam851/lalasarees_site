@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block robots %}noindex,nofollow{% endblock %}
+{% block title %}My account | {{ site.store_name }}{% endblock %}
+{% block content %}
+<div class="wrap" style="padding-top:34px">
+  <h1 style="font-size:2.2rem">Hello, {{ user.display_name }}</h1>
+  <p>{% if user.wholesale_approved %}<span class="status paid">Wholesale buyer</span>{% elif user.is_business %}<span class="status placed">Business account, verification pending</span>{% endif %}</p>
+  <div class="two-col" style="grid-template-columns:1fr 1fr">
+    <div class="panel"><h2>Profile</h2>
+      <form method="post">{% csrf_token %}{% include "partials/form_errors.html" %}
+        <div class="grid-2">{% include 'partials/field.html' with field=form.first_name %}{% include 'partials/field.html' with field=form.last_name %}</div>
+        {% include 'partials/field.html' with field=form.phone %}
+        {% if user.is_business or user.wholesale_approved %}{% include 'partials/field.html' with field=form.business_name %}{% include 'partials/field.html' with field=form.gstin %}{% endif %}
+        <p class="small muted">Email: {{ user.email }}</p>
+        <button class="btn ink" type="submit">Save profile</button> <a class="btn ghost" href="{% url 'password_change' %}">Change password</a>
+      </form></div>
+    <div>
+      <div class="panel"><h2>Saved addresses</h2>
+        {% for a in addresses %}<div class="addr" style="padding:10px 0;border-bottom:1px solid var(--line)"><div style="flex:1"><b>{{ a.full_name }}</b>{% if a.is_default %} <span class="status paid">Default</span>{% endif %}<br>{{ a.line1 }}{% if a.line2 %}, {{ a.line2 }}{% endif %}<br>{{ a.city }}, {{ a.state_name }} {{ a.pincode }}<br>{{ a.phone }}</div>
+          <div><a class="small" href="{% url 'address_edit' a.pk %}">Edit</a>
+          <form class="inline" method="post" action="{% url 'address_delete' a.pk %}" onsubmit="return confirm('Remove this address?')">{% csrf_token %}<button class="btn-link small" type="submit">Remove</button></form></div></div>
+        {% empty %}<p class="muted">No saved addresses yet.</p>{% endfor %}
+        <p style="margin-top:14px"><a class="btn sm" href="{% url 'address_add' %}">Add address</a></p>
+      </div>
+      <div class="panel" style="margin-top:20px"><h2>Orders</h2><p><a class="btn ghost sm" href="{% url 'order_list' %}">View my orders</a></p>
+        <form method="post" action="{% url 'logout' %}">{% csrf_token %}<button class="btn-link" type="submit">Log out</button></form></div>
+    </div>
+  </div>
+</div>
+{% endblock %}

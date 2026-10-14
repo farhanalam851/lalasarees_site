@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}Thank you | Lala Sarees{% endblock %}
+{% block robots %}noindex,nofollow{% endblock %}
+{% block content %}
+<div class="wrap"><div class="auth center" style="max-width:600px">
+  <div class="arch-frame" style="width:84px;height:104px;margin:0 auto 18px;display:grid;place-items:center;font-size:2rem;color:var(--ok)" aria-hidden="true">&#10003;</div>
+  <h1 style="font-size:2.2rem">Thank you, we have your {% if kind == 'wholesale' %}wholesale request{% else %}message{% endif %}</h1>
+  <p class="muted">We will call you back within one working day. For anything urgent, call <a href="tel:+91{{ site.phone1 }}">{{ site.phone1 }}</a>.</p>
+  <p><a class="btn" href="{% url 'catalog' %}">Browse sarees</a> <a class="btn ghost" href="{% url 'home' %}">Back to home</a></p>
+</div></div>
+{% endblock %}
+{% block scripts %}<script>document.addEventListener('DOMContentLoaded',function(){if(window.lsTrack)lsTrack('generate_lead',{lead_type:'{{ kind|escapejs }}'});});</script>{% endblock %}

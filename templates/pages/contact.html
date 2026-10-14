@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block meta_desc %}Contact Lala Sarees, P Road, Kanpur. Call 9211420021 or 9638527410, chat on WhatsApp or send us a message.{% endblock %}
+{% block title %}Contact | {{ site.store_name }}{% endblock %}
+{% block content %}
+<div class="wrap" style="padding-top:40px"><h1>Contact us</h1>
+  <div class="two-col" style="grid-template-columns:1fr 1fr">
+    <div class="panel"><h2>Visit or call</h2><p>{{ site.address }}</p>
+      <p><a href="tel:+91{{ site.phone1 }}">{{ site.phone1 }}</a>{% if site.phone2 %}<br><a href="tel:+91{{ site.phone2 }}">{{ site.phone2 }}</a>{% endif %}{% if site.email %}<br><a href="mailto:{{ site.email }}">{{ site.email }}</a>{% endif %}</p>
+      {% if site.whatsapp %}<p><a class="btn sm" style="background:#1fa855;border-color:#1fa855" href="https://wa.me/91{{ site.whatsapp }}" target="_blank" rel="noopener">Chat on WhatsApp</a></p>{% endif %}</div>
+    <div class="panel"><h2>Send a message</h2>
+      <form method="post">{% csrf_token %}{% include "partials/form_errors.html" %}
+        {% include 'partials/field.html' with field=form.name %}{% include 'partials/field.html' with field=form.phone %}{% include 'partials/field.html' with field=form.email %}{% include 'partials/field.html' with field=form.message %}
+        <button class="btn block" type="submit">Send message</button></form></div>
+  </div></div>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends 'dashboard/base.html' %}
+{% load shop_extras %}
+{% block title %}Order {{ order.number }}{% endblock %}
+{% block content %}
+<p><a href="{% url 'dash_orders' %}">&larr; All orders</a></p>
+<h1>Order {{ order.number }} <span class="status {{ order.status }}">{{ order.get_status_display }}</span> <span class="status {{ order.payment_status }}">{{ order.get_payment_status_display }}</span></h1>
+<div class="dash-grid">
+  <div>
+    <div class="panel"><h3>Items</h3><div class="table-scroll"><table class="t"><thead><tr><th>Item</th><th>HSN</th><th class="r">Qty</th><th class="r">Rate</th><th class="r">GST</th><th class="r">Amount</th></tr></thead><tbody>
+      {% for i in order.items.all %}<tr><td>{{ i.name }}<div class="small muted">{{ i.sku }}{% if i.is_wholesale_price %} &middot; wholesale{% endif %}</div></td><td>{{ i.hsn_code }}</td><td class="r">{{ i.qty }}</td><td class="r">{{ i.unit_price|inr:"2" }}</td><td class="r">{{ i.gst_amount|inr:"2" }} ({{ i.gst_rate|floatformat:"-2" }}%)</td><td class="r">{{ i.line_total|inr:"2" }}</td></tr>{% endfor %}
+      <tr><td colspan="5" class="r">Shipping</td><td class="r">{{ order.shipping_charge|inr:"2" }}</td></tr>
+      {% if order.cod_fee %}<tr><td colspan="5" class="r">COD fee</td><td class="r">{{ order.cod_fee|inr:"2" }}</td></tr>{% endif %}
+      <tr><th colspan="5" class="r">Total ({% if order.igst %}IGST{% else %}CGST+SGST{% endif %} {{ order.gst_total|inr:"2" }})</th><th class="r">{{ order.total|inr:"2" }}</th></tr></tbody></table></div></div>
+    <div class="panel" style="margin-top:20px"><h3>Customer and delivery</h3>
+      <p style="margin:0">{{ order.ship_name }} &middot; {{ order.ship_phone }}<br>{{ order.user.email }}{% if order.buyer_business %}<br>{{ order.buyer_business }}{% endif %}{% if order.buyer_gstin %} &middot; GSTIN {{ order.buyer_gstin }}{% endif %}<br>{{ order.ship_line1 }}{% if order.ship_line2 %}, {{ order.ship_line2 }}{% endif %}, {{ order.ship_city }}, {{ order.ship_state_name }} {{ order.ship_pincode }}</p>
+      {% if order.customer_note %}<p class="note">Customer note: {{ order.customer_note }}</p>{% endif %}
+      <p style="margin:12px 0 0"><a class="btn ghost sm" href="{% url 'invoice' order.number %}" target="_blank">Open GST invoice</a></p></div>
+  </div>
+  <div>
+    {% if order.payment_status == 'verifying' %}
+    <div class="panel" style="border-color:var(--zari);margin-bottom:20px"><h3>Verify {{ order.get_payment_method_display }}</h3>
+      <p>Customer reports paying <b>{{ order.total|inr:"2" }}</b>.<br>Reference / UTR: <b>{{ order.payment_reference }}</b></p>
+      <p class="small muted">Match this reference and amount in your bank or UPI app before approving.</p>
+      <form method="post" action="{% url 'dash_order_payment' order.number %}" class="inline">{% csrf_token %}<button class="btn sm" name="action" value="approve" type="submit">Payment received</button> <button class="btn ghost sm" name="action" value="reject" type="submit" onclick="return confirm('Mark this payment as not received?')">Not received</button></form></div>
+    {% endif %}
+    <div class="panel"><h3>Update order</h3>
+      <form method="post">{% csrf_token %}{{ form.non_field_errors }}
+        {% for field in form %}{% include 'partials/field.html' %}{% endfor %}
+        <button class="btn ink block" type="submit">Save changes</button></form>
+      <p class="small muted" style="margin-top:12px">Setting status to Cancelled returns the stock. Marking a COD order Delivered marks it paid. Customers get an email when you set Shipped.</p></div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'dashboard/base.html' %}
+{% load shop_extras %}
+{% block content %}
+<h1>Overview</h1>
+<div class="kpis">
+  <div class="kpi"><span class="muted small">Orders today</span><b>{{ orders_today }}</b></div>
+  <div class="kpi"><span class="muted small">Paid revenue, 30 days</span><b>{{ revenue_30|inr }}</b></div>
+  <div class="kpi {% if to_ship %}alert{% endif %}"><span class="muted small">To pack and ship</span><b>{{ to_ship }}</b></div>
+  <div class="kpi {% if to_verify %}alert{% endif %}"><span class="muted small">Payments to verify</span><b>{{ to_verify }}</b></div>
+  <div class="kpi {% if wholesale_pending %}alert{% endif %}"><span class="muted small">Wholesale approvals</span><b>{{ wholesale_pending }}</b></div>
+  <div class="kpi"><span class="muted small">Customers</span><b>{{ customers }}</b></div>
+</div>
+<div class="dash-grid">
+  <div class="panel"><h3>Paid revenue, last 7 days</h3>
+    <div class="chart" role="img" aria-label="Bar chart of paid revenue for the last seven days">{% for d in days %}<div><span>{{ d.amount|inr }}</span><i style="height:{{ d.pct }}%"></i><span>{{ d.label }}</span></div>{% endfor %}</div></div>
+  <div class="panel"><h3>Low stock</h3>
+    {% for p in low_stock %}<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line)"><a href="{% url 'dash_product_edit' p.pk %}">{{ p.name|truncatechars:34 }}</a><b class="{% if p.stock == 0 %}stock out{% else %}stock low{% endif %}">{{ p.stock }}</b></div>
+    {% empty %}<p class="muted">Every active saree has stock.</p>{% endfor %}</div>
+</div>
+<div class="panel" style="margin-top:22px"><h3>Recent orders</h3>{% include 'dashboard/_order_table.html' with orders=recent %}</div>
+{% endblock %}

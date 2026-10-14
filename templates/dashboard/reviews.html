@@ -1,0 +1,10 @@
+{% extends 'dashboard/base.html' %}
+{% load shop_extras %}
+{% block title %}Reviews{% endblock %}
+{% block content %}
+<h1>Reviews</h1>
+<div class="panel">{% for r in reviews %}<div style="padding:12px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap">
+<div style="flex:1;min-width:240px">{{ r.rating|stars }} <b>{{ r.title }}</b> {% if not r.is_approved %}<span class="status cancelled">Hidden</span>{% endif %}<div class="small muted">{{ r.user.display_name }} on <a href="{{ r.product.get_absolute_url }}">{{ r.product.name|truncatechars:40 }}</a> &middot; {{ r.created|date:"j M Y" }}</div><p style="margin:6px 0 0">{{ r.comment }}</p></div>
+<form method="post" action="{% url 'dash_review_toggle' r.pk %}">{% csrf_token %}<button class="btn ghost sm" type="submit">{% if r.is_approved %}Hide{% else %}Show{% endif %}</button></form></div>
+{% empty %}<p class="muted">No reviews yet.</p>{% endfor %}</div>
+{% endblock %}

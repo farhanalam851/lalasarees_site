@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block robots %}noindex,nofollow{% endblock %}
+{% block title %}{% if editing %}Edit{% else %}Add{% endif %} address | {{ site.store_name }}{% endblock %}
+{% block content %}
+<div class="wrap"><div class="auth">
+  <h1 style="font-size:2rem">{% if editing %}Edit address{% else %}Add address{% endif %}</h1>
+  <form method="post">{% csrf_token %}{% include "partials/form_errors.html" %}
+    {% for field in form %}{% include 'partials/field.html' %}{% endfor %}
+    <button class="btn block" type="submit">Save address</button>
+  </form>
+</div></div>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block meta_desc %}Wholesale sarees for boutiques and retailers from Kanpur. Open a business account with your GSTIN for bulk prices, GST invoices and India-wide dispatch.{% endblock %}
+{% block title %}Wholesale sarees | {{ site.store_name }}{% endblock %}
+{% block content %}
+<div class="wrap" style="padding-top:40px"><h1>Wholesale for boutiques and retailers</h1>
+  <p class="lead muted" style="max-width:40em">Buy sarees in bulk at wholesale rates, with GST invoices and dispatch across India.</p>
+  <div class="steps">
+    <div class="panel"><h3>1. Open a business account</h3><p class="muted">Register with your shop name and GSTIN.</p></div>
+    <div class="panel"><h3>2. We verify you</h3><p class="muted">Approval usually takes one working day.</p></div>
+    <div class="panel"><h3>3. Order at wholesale rates</h3><p class="muted">Wholesale prices apply automatically from the minimum quantity on each design.</p></div>
+  </div>
+  <p style="margin:24px 0"><a class="btn" href="{% url 'register' %}?type=business">Create business account</a></p>
+  <div class="two-col" style="grid-template-columns:1fr 1fr;margin-top:30px">
+    <div class="panel"><h2>Need a custom lot or a catalogue?</h2><p class="muted">Tell us what you stock and how many pieces you buy a month. We will call you back.</p>
+      <p>Or call <a href="tel:+91{{ site.phone1 }}">{{ site.phone1 }}</a>.</p></div>
+    <div class="panel"><h2>Request a call back</h2>
+      <form method="post">{% csrf_token %}{% include "partials/form_errors.html" %}
+        {% include 'partials/field.html' with field=form.name %}{% include 'partials/field.html' with field=form.business_name %}{% include 'partials/field.html' with field=form.phone %}{% include 'partials/field.html' with field=form.city %}{% include 'partials/field.html' with field=form.expected_qty %}{% include 'partials/field.html' with field=form.message %}
+        <button class="btn block" type="submit">Request call back</button></form></div>
+  </div></div>
+{% endblock %}

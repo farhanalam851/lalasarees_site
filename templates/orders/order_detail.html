@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load shop_extras %}
+{% block robots %}noindex,nofollow{% endblock %}
+{% block title %}Order {{ order.number }} | {{ site.store_name }}{% endblock %}
+{% block content %}
+<div class="wrap" style="padding-top:34px">
+  {% if placed %}<div class="msg success"><b>Thank you, your order is placed.</b> {% if order.payment_method == 'cod' %}Pay in cash when it arrives.{% elif order.payment_status == 'paid' %}Payment received.{% elif order.payment_status == 'verifying' %}We are verifying your payment.{% endif %} A confirmation has been sent to {{ order.user.email }}.</div>{% endif %}
+  <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center">
+    <h1 style="font-size:2rem;margin:0">Order {{ order.number }}</h1>
+    <div><span class="status {{ order.status }}">{{ order.get_status_display }}</span> <span class="status {{ order.payment_status }}">{{ order.get_payment_status_display }}</span></div>
+  </div>
+  <p class="muted">Placed {{ order.created|date:"j M Y, g:i a" }} &middot; {{ order.get_payment_method_display }}</p>
+
+  {% if order.status != 'cancelled' and order.status != 'pending_payment' %}
+  <ol class="timeline" aria-label="Order progress">
+    <li class="done">Placed</li>
+    <li class="{% if order.status == 'confirmed' or order.status == 'packed' or order.status == 'shipped' or order.status == 'delivered' %}done{% endif %}">Confirmed</li>
+    <li class="{% if order.status == 'packed' or order.status == 'shipped' or order.status == 'delivered' %}done{% endif %}">Packed</li>
+    <li class="{% if order.status == 'shipped' or order.status == 'delivered' %}done{% endif %}">Shipped</li>
+    <li class="{% if order.status == 'delivered' %}done{% endif %}">Delivered</li>
+  </ol>{% endif %}
+
+  {% if order.awaiting_payment_action %}
+  <div class="note">Payment is pending for this order.
+    {% if order.payment_method == 'razorpay' %}<a class="btn sm" href="{% url 'razorpay_start' order.number %}">Pay now</a>{% else %}<a class="btn sm" href="{% url 'manual_payment' order.number %}">Complete payment</a>{% endif %}</div>
+  {% endif %}
+  {% if order.tracking_id %}<div class="note ok">Shipped via <b>{{ order.courier|default:"courier" }}</b>. Tracking ID: <b>{{ order.tracking_id }}</b></div>{% endif %}
+
+  <div class="two-col">
+    <div class="panel"><h2>Items</h2>
+      {% for i in order.items.all %}<div class="line"><img src="{{ i.image_url }}" alt="{{ i.name }}" width="96" height="128"><div><b>{{ i.name }}</b><div class="small muted">Code {{ i.sku }} &middot; {{ i.qty }} &times; {{ i.unit_price|inr }}{% if i.is_wholesale_price %} (wholesale){% endif %}</div></div><div class="lt"><b>{{ i.line_total|inr }}</b></div></div>{% endfor %}
+    </div>
+    <div>
+      <div class="panel"><h2>Payment summary</h2><div class="sum">
+        <div><span>Taxable value</span><span>{{ order.taxable_total|inr:"2" }}</span></div>
+        {% if order.igst %}<div><span>IGST</span><span>{{ order.igst|inr:"2" }}</span></div>{% else %}<div><span>CGST</span><span>{{ order.cgst|inr:"2" }}</span></div><div><span>SGST</span><span>{{ order.sgst|inr:"2" }}</span></div>{% endif %}
+        <div><span>Shipping</span><span>{% if order.shipping_charge %}{{ order.shipping_charge|inr:"2" }}{% else %}Free{% endif %}</span></div>
+        {% if order.cod_fee %}<div><span>COD fee</span><span>{{ order.cod_fee|inr:"2" }}</span></div>{% endif %}
+        <div class="total"><span>Total</span><span>{{ order.total|inr:"2" }}</span></div></div>
+        {% if order.payment_reference %}<p class="small muted" style="margin-top:12px">Reference: {{ order.payment_reference }}</p>{% endif %}
+      </div>
+      <div class="panel" style="margin-top:18px"><h2>Delivering to</h2><p style="margin:0">{{ order.ship_name }}<br>{{ order.ship_line1 }}{% if order.ship_line2 %}, {{ order.ship_line2 }}{% endif %}<br>{{ order.ship_city }}, {{ order.ship_state_name }} {{ order.ship_pincode }}<br>{{ order.ship_phone }}</p>
+        {% if order.buyer_gstin %}<p class="small muted" style="margin:10px 0 0">GSTIN {{ order.buyer_gstin }}</p>{% endif %}</div>
+      <p style="margin-top:16px">
+        {% if order.status != 'pending_payment' and order.status != 'cancelled' %}<a class="btn ink sm" href="{% url 'invoice' order.number %}">View GST invoice</a>{% endif %}
+        {% if order.can_cancel and order.user == request.user %}<form class="inline" method="post" action="{% url 'order_cancel' order.number %}" onsubmit="return confirm('Cancel this order?')">{% csrf_token %}<button class="btn ghost sm" type="submit">Cancel order</button></form>{% endif %}
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

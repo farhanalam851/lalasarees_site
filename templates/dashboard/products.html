@@ -1,0 +1,14 @@
+{% extends 'dashboard/base.html' %}
+{% load shop_extras %}
+{% block title %}Products{% endblock %}
+{% block content %}
+<div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center"><h1>Products</h1><a class="btn" href="{% url 'dash_product_new' %}">Add saree</a></div>
+<form class="filters-bar" method="get"><input type="search" name="q" value="{{ q }}" placeholder="Name or item code" aria-label="Search products"><button class="btn ink sm" type="submit">Search</button></form>
+<div class="panel"><div class="table-scroll"><table class="t"><thead><tr><th></th><th>Name</th><th>Code</th><th>Category</th><th class="r">Retail</th><th class="r">Wholesale</th><th class="r">Stock</th><th>Status</th><th></th></tr></thead><tbody>
+{% for p in page.object_list %}<tr><td><img src="{{ p.image.url }}" alt="{{ p.name }}" style="width:44px;height:58px;object-fit:cover;border-radius:6px;object-position:{{ p.image_position }}"></td>
+<td><a href="{% url 'dash_product_edit' p.pk %}"><b>{{ p.name|truncatechars:44 }}</b></a></td><td>{{ p.sku }}</td><td>{{ p.category }}</td><td class="r">{{ p.price|inr }}</td><td class="r">{% if p.wholesale_price %}{{ p.wholesale_price|inr }} ({{ p.wholesale_min_qty }}+){% else %}-{% endif %}</td>
+<td class="r"><b class="{% if p.stock == 0 %}stock out{% elif p.stock <= 3 %}stock low{% endif %}">{{ p.stock }}</b></td><td>{% if p.is_active %}<span class="status paid">Live</span>{% else %}<span class="status cancelled">Hidden</span>{% endif %}</td>
+<td><form method="post" action="{% url 'dash_product_toggle' p.pk %}" class="inline">{% csrf_token %}<button class="btn-link small" type="submit">{% if p.is_active %}Hide{% else %}Show{% endif %}</button></form></td></tr>
+{% empty %}<tr><td colspan="9" class="muted">No products found.</td></tr>{% endfor %}</tbody></table></div></div>
+{% include 'dashboard/_pager.html' %}
+{% endblock %}

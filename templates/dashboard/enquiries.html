@@ -1,0 +1,11 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}Enquiries{% endblock %}
+{% block content %}
+<h1>Enquiries</h1>
+<p><a href="?{% if show != 'all' %}show=all{% endif %}">{% if show == 'all' %}Show open only{% else %}Show resolved too{% endif %}</a></p>
+{% for e in enquiries %}<div class="panel" style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><b>{{ e.name }}</b> {% if e.business_name %}({{ e.business_name }}){% endif %} <span class="status {% if e.kind == 'wholesale' %}paid{% endif %}">{{ e.get_kind_display }}</span>
+<div class="small muted">{{ e.created|date:"j M Y, g:i a" }}{% if e.city %} &middot; {{ e.city }}{% endif %}{% if e.expected_qty %} &middot; {{ e.expected_qty }} per month{% endif %}</div></div>
+<div><a class="btn sm" href="tel:+91{{ e.phone }}">Call {{ e.phone }}</a> {% if not e.is_resolved %}<form method="post" action="{% url 'dash_enquiry_resolve' e.pk %}" class="inline">{% csrf_token %}<button class="btn ghost sm" type="submit">Mark resolved</button></form>{% endif %}</div></div>
+<p style="margin:10px 0 0">{{ e.message|linebreaksbr }}</p>{% if e.email %}<p class="small muted" style="margin:6px 0 0">{{ e.email }}</p>{% endif %}</div>
+{% empty %}<div class="empty">No open enquiries.</div>{% endfor %}
+{% endblock %}

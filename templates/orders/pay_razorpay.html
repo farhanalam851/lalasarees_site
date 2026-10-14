@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% load shop_extras %}
+{% block robots %}noindex,nofollow{% endblock %}
+{% block title %}Pay for order {{ order.number }}{% endblock %}
+{% block content %}
+<div class="wrap"><div class="auth center">
+  <h1 style="font-size:2rem">Pay {{ order.total|inr:"2" }}</h1>
+  <p class="muted">Order {{ order.number }}. Pay with any UPI app, card or netbanking. Payments are processed securely by Razorpay.</p>
+  <button class="btn block" id="pay-btn" type="button">Pay now</button>
+  <form id="verify" method="post" action="{% url 'razorpay_verify' %}">{% csrf_token %}
+    <input type="hidden" name="razorpay_payment_id" id="rp_pid"><input type="hidden" name="razorpay_order_id" id="rp_oid"><input type="hidden" name="razorpay_signature" id="rp_sig"></form>
+  <p class="small" style="margin-top:16px"><a href="{% url 'order_detail' order.number %}">Pay later from my orders</a></p>
+</div></div>
+{% endblock %}
+{% block scripts %}
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+(function () {
+  var opts = {
+    key: "{{ key_id }}", amount: "{{ amount }}", currency: "INR", name: "{{ site.store_name|escapejs }}",
+    description: "Order {{ order.number }}", order_id: "{{ rzp_order_id }}",
+    prefill: { name: "{{ order.ship_name|escapejs }}", email: "{{ order.user.email|escapejs }}", contact: "{{ order.ship_phone }}" },
+    theme: { color: "#B3174F" },
+    handler: function (r) {
+      document.getElementById('rp_pid').value = r.razorpay_payment_id;
+      document.getElementById('rp_oid').value = r.razorpay_order_id;
+      document.getElementById('rp_sig').value = r.razorpay_signature;
+      document.getElementById('verify').submit();
+    }
+  };
+  var btn = document.getElementById('pay-btn');
+  btn.addEventListener('click', function () { new Razorpay(opts).open(); });
+  btn.click();
+})();
+</script>
+{% endblock %}

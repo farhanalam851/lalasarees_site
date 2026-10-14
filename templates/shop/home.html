@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static shop_extras %}
+{% block meta_desc %}Shop ready-to-wear, designer, silk and wedding sarees from Lala Sarees, P Road, Kanpur. Retail and wholesale prices, GST invoice, UPI and COD.{% endblock %}
+{% block head %}<link rel="preload" as="image" href="{% static 'img/hero-main.webp' %}" fetchpriority="high">{% endblock %}
+{% block sticky_cta %}<div class="sticky-cta"><a class="btn block" href="{% url 'catalog' %}">Shop sarees</a><a class="btn ghost" href="tel:+91{{ site.phone1 }}">Call</a></div>{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="wrap">
+    <div>
+      <h1>Sarees for every occasion, from our shop on P Road, Kanpur</h1>
+      <p class="lead">Ready-to-wear drapes, tissue and georgette party sarees, silk with woven zari. Buy a single piece for yourself, or open a wholesale account for your boutique.</p>
+      <div class="cta">
+        <a class="btn" href="{% url 'catalog' %}">Shop sarees</a>
+        <a class="btn ghost" href="{% url 'wholesale' %}">Buy wholesale</a>
+      </div>
+      <ul class="facts"><li>Stitched blouse included</li><li>GST invoice on every order</li><li>UPI, cards and COD</li></ul>
+    </div>
+    <div class="hero-art">
+      <div class="arch-frame"><img src="{% static 'img/hero-main.webp' %}" width="629" height="1000" fetchpriority="high" alt="Pista green tissue saree with embroidered blouse on display at Lala Sarees"></div>
+      <div class="mini"><div class="arch-frame"><img src="{% static 'img/hero-mini.webp' %}" width="1400" height="1000" alt="Teal embroidered saree with zari pallu"></div></div>
+    </div>
+  </div>
+</section>
+<div class="pallu" aria-hidden="true"></div>
+
+<section class="section">
+  <div class="wrap">
+    <div class="sec-head"><h2>Shop by collection</h2><a class="more" href="{% url 'catalog' %}">View all</a></div>
+    <div class="tiles">
+      {% for c in categories %}
+      <a class="tile" href="{{ c.get_absolute_url }}">
+        <div class="arch-frame">{% if c.image %}<img src="{{ c.image.url }}" alt="{{ c.name }}" width="600" height="800" loading="lazy" style="object-position:{{ c.image_position }}">{% endif %}</div>
+        <h3>{{ c.name }}</h3><span class="muted small">{{ c.n }} saree{{ c.n|pluralize }}</span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="section tint">
+  <div class="wrap">
+    <div class="sec-head"><h2>Dressed for the occasion</h2></div>
+    <div class="chips">{% for key, label in occasions %}<a class="chip" href="{% url 'catalog' %}?occasion={{ key }}">{{ label }}</a>{% endfor %}</div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="sec-head"><h2>Featured sarees</h2><a class="more" href="{% url 'catalog' %}">See more</a></div>
+    {% if featured %}<div class="products">{% for p in featured %}{% include 'partials/product_card.html' %}{% endfor %}</div>
+    {% else %}<div class="empty"><p>Our catalogue is being updated. Please check back soon or call {{ site.phone1 }}.</p></div>{% endif %}
+  </div>
+</section>
+
+<section class="b2b">
+  <div class="wrap">
+    <div>
+      <h2>Stocking a boutique or running a saree shop?</h2>
+      <p>Open a business account and see wholesale prices on every design once you buy in bulk.</p>
+      <ul><li>Wholesale rates from 6 pieces on selected designs</li><li>GST invoice with your GSTIN for input credit</li><li>Bank transfer, UPI and online payment</li><li>Dispatch across India</li></ul>
+      <a class="btn gold" href="{% url 'register' %}?type=business">Create business account</a>
+      <a class="btn ghost" style="color:#fff;border-color:#fff;margin-left:8px" href="{% url 'wholesale' %}">Talk to us</a>
+    </div>
+    <div class="fabric"><img src="{% static 'img/fabric-stack.webp' %}" width="643" height="360" alt="Stack of silk sarees in magenta, gold, teal and purple" loading="lazy"></div>
+  </div>
+</section>
+
+{% if reviews %}
+<section class="section">
+  <div class="wrap">
+    <div class="sec-head"><h2>What buyers say</h2></div>
+    <div class="quotes">{% for r in reviews %}
+      <figure class="quote" style="margin:0">{{ r.rating|stars }}<p>{{ r.comment|truncatechars:150 }}</p>
+        <figcaption class="small muted">{{ r.user.display_name }} on <a href="{{ r.product.get_absolute_url }}">{{ r.product.name|truncatechars:40 }}</a></figcaption></figure>
+    {% endfor %}</div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

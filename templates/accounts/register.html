@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block robots %}noindex,nofollow{% endblock %}
+{% block title %}Create account | {{ site.store_name }}{% endblock %}
+{% block content %}
+<div class="wrap"><div class="auth">
+  <h1 style="font-size:2rem">Create your account</h1>
+  <form method="post" novalidate>{% csrf_token %}
+    {% include "partials/form_errors.html" %}
+    <div class="field"><label>I am registering as</label>
+      <ul class="radio-list">{% for r in form.account_type %}<li><label for="{{ r.id_for_label }}">{{ r.tag }} {{ r.choice_label }}</label></li>{% endfor %}</ul>{{ form.account_type.errors }}</div>
+    <div class="grid-2">{% include 'partials/field.html' with field=form.first_name %}{% include 'partials/field.html' with field=form.last_name %}</div>
+    {% include 'partials/field.html' with field=form.email %}
+    {% include 'partials/field.html' with field=form.phone %}
+    <div id="biz-fields">
+      {% include 'partials/field.html' with field=form.business_name %}
+      {% include 'partials/field.html' with field=form.gstin %}
+      <p class="note small">Business accounts get wholesale prices after we verify the GSTIN, usually within one working day.</p>
+    </div>
+    {% include 'partials/field.html' with field=form.password1 %}
+    {% include 'partials/field.html' with field=form.password2 %}
+    <button class="btn block" type="submit">Create account</button>
+  </form>
+  <p class="small" style="margin-top:16px">Already registered? <a href="{% url 'login' %}">Log in</a></p>
+</div></div>
+<script>
+(function(){var r=document.querySelectorAll('input[name=account_type]'),b=document.getElementById('biz-fields');
+function f(){var v=document.querySelector('input[name=account_type]:checked');b.hidden=!(v&&v.value==='business');}
+r.forEach(function(x){x.addEventListener('change',f)});f();})();
+</script>
+{% endblock %}

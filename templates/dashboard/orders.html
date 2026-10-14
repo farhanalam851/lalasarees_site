@@ -1,0 +1,13 @@
+{% extends 'dashboard/base.html' %}
+{% block title %}Orders{% endblock %}
+{% block content %}
+<h1>Orders</h1>
+<form class="filters-bar" method="get">
+  <input type="search" name="q" value="{{ q }}" placeholder="Order no, name, email, phone" aria-label="Search orders">
+  <select name="status" aria-label="Status"><option value="">All statuses</option>{% for k, l in statuses %}<option value="{{ k }}" {% if status == k %}selected{% endif %}>{{ l }}</option>{% endfor %}</select>
+  <select name="payment" aria-label="Payment"><option value="">All payments</option>{% for k, l in pay_statuses %}<option value="{{ k }}" {% if pay == k %}selected{% endif %}>{{ l }}</option>{% endfor %}</select>
+  <button class="btn ink sm" type="submit">Filter</button>
+</form>
+<div class="panel">{% include 'dashboard/_order_table.html' with orders=page.object_list %}</div>
+{% include 'dashboard/_pager.html' %}
+{% endblock %}

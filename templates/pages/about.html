@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block meta_desc %}About Lala Sarees, a saree house on P Road, Kanpur selling ready-to-wear, silk, wedding and party sarees to families and boutiques across India.{% endblock %}
+{% block title %}About | {{ site.store_name }}{% endblock %}
+{% block content %}
+<div class="wrap" style="padding-top:40px">
+  <div class="two-col" style="grid-template-columns:1.2fr .8fr;align-items:center">
+    <div class="prose"><h1>About Lala Sarees</h1>
+      <p>Lala Sarees is a saree house on P Road, Kanpur. We sell sarees for every occasion: ready-to-wear drapes for parties, tissue and georgette for weddings, silk with woven zari for festivals and lighter sarees for the office.</p>
+      <p>We sell to families buying for a celebration and to boutiques and shop owners who stock our designs. Every order ships with a GST invoice, and every piece is checked by hand before it is packed.</p>
+      <p><a class="btn" href="{% url 'catalog' %}">Shop sarees</a> <a class="btn ghost" href="{% url 'wholesale' %}">Wholesale</a></p></div>
+    <div class="arch-frame" style="max-width:360px;margin:auto"><img src="{% static 'img/hero-mini.webp' %}" width="1400" height="1000" alt="Embroidered teal saree with zari pallu" style="border-radius:999px 999px 12px 12px;width:100%;aspect-ratio:3/4;object-fit:cover;object-position:58% 40%"></div>
+  </div>
+</div>
+{% endblock %}

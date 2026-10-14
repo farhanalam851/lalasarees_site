@@ -1,0 +1,3 @@
+{% extends 'base.html' %}
+{% block robots %}noindex,nofollow{% endblock %}
+{% block content %}<div class="wrap"><div class="empty" style="margin-top:50px"><h1>We could not find that page</h1><p class="muted">The link may be old, or the saree may have sold out.</p><a class="btn" href="{% url 'catalog' %}">Browse sarees</a></div></div>{% endblock %}

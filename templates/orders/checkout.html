@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% load shop_extras %}
+{% block robots %}noindex,nofollow{% endblock %}
+{% block title %}Checkout | {{ site.store_name }}{% endblock %}
+{% block content %}
+<div class="wrap" style="padding-top:34px">
+  <h1 style="font-size:2.2rem">Checkout</h1>
+  <form method="post" id="checkout-form" novalidate data-quote="{% url 'checkout_quote' %}" class="two-col">{% csrf_token %}
+    <div>
+      <div class="panel">
+        <h2>Delivery address</h2>
+        {% if addresses %}
+        <ul class="radio-list">
+          {% for a in addresses %}
+          <li><label class="addr"><input type="radio" name="address_id" value="{{ a.pk }}" data-state="{{ a.state_code }}" {% if selected_address == a.pk|stringformat:"s" %}checked{% endif %}>
+            <span><b>{{ a.full_name }}</b> {{ a.phone }}<br><span class="small muted">{{ a.line1 }}{% if a.line2 %}, {{ a.line2 }}{% endif %}, {{ a.city }}, {{ a.state_name }} {{ a.pincode }}</span></span></label></li>
+          {% endfor %}
+          <li><label><input type="radio" name="address_id" value="new" data-state="" {% if selected_address == 'new' %}checked{% endif %}> Deliver to a new address</label></li>
+        </ul>
+        {% endif %}
+        <div id="new-address" style="margin-top:16px" {% if addresses and selected_address != 'new' %}hidden{% endif %}>
+          {{ new_form.non_field_errors }}
+          <div class="grid-2">{% include 'partials/field.html' with field=new_form.full_name %}{% include 'partials/field.html' with field=new_form.phone %}</div>
+          {% include 'partials/field.html' with field=new_form.line1 %}
+          {% include 'partials/field.html' with field=new_form.line2 %}
+          <div class="grid-2">{% include 'partials/field.html' with field=new_form.city %}{% include 'partials/field.html' with field=new_form.pincode %}</div>
+          {% include 'partials/field.html' with field=new_form.state_code %}
+          {% include 'partials/field.html' with field=new_form.is_default %}
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top:20px">
+        <h2>GST details</h2>
+        <div class="field"><label for="gstin">Business GSTIN <span class="muted small">(optional)</span></label>
+          <input id="gstin" type="text" name="gstin" maxlength="15" value="{{ gstin }}" style="text-transform:uppercase" autocomplete="off">
+          <div class="help">Add it to receive a GST invoice in your business name.</div></div>
+        <div class="field" style="margin-bottom:0"><label for="note">Note for us <span class="muted small">(optional)</span></label><input id="note" type="text" name="note" maxlength="300"></div>
+      </div>
+
+      <div class="panel" style="margin-top:20px">
+        <h2>Payment</h2>
+        {% if methods %}
+        <ul class="radio-list">{% for key, label, help in methods %}
+          <li><label><input type="radio" name="method" value="{{ key }}" {% if selected_method == key %}checked{% endif %}> <span><b>{{ label }}</b><br><span class="small muted">{{ help }}</span></span></label></li>{% endfor %}</ul>
+        {% else %}<p class="msg error">No payment method is available right now. Please call {{ site.phone1 }} to place your order.</p>{% endif %}
+      </div>
+    </div>
+
+    <div class="panel sticky">
+      <h2>Order summary</h2>
+      {% for it in totals.items %}<div class="sum" style="margin-bottom:8px"><div><span>{{ it.qty }} &times; {{ it.product.name|truncatechars:32 }}</span><span>{{ it.gross|inr }}</span></div></div>{% endfor %}
+      <div class="sum" style="margin-top:12px;border-top:1px solid var(--line);padding-top:12px">
+        <div><span>Items total</span><span id="q-goods">{{ totals.goods_total|inr:"2" }}</span></div>
+        <div class="small muted"><span>{% if totals.inclusive %}GST included{% else %}GST added{% endif %}</span><span id="q-gst">{{ totals.gst_total|inr:"2" }} ({% if totals.intra %}CGST + SGST{% else %}IGST{% endif %})</span></div>
+        <div><span>Shipping</span><span id="q-ship">{% if totals.shipping == 0 %}Free{% else %}{{ totals.shipping|inr:"2" }}{% endif %}</span></div>
+        <div id="q-cod-row" {% if not totals.cod_fee %}hidden{% endif %}><span>COD fee</span><span id="q-cod">{{ totals.cod_fee|inr:"2" }}</span></div>
+        <div class="total"><span>Total</span><span id="q-total">{{ totals.grand_total|inr:"2" }}</span></div>
+      </div>
+      <button class="btn block" type="submit" style="margin-top:18px" {% if not methods %}disabled{% endif %}>Place order</button>
+      <p class="small muted center" style="margin-top:10px">By placing the order you agree to our <a href="{% url 'terms' %}">terms</a> and <a href="{% url 'shipping_policy' %}">returns policy</a>.</p>
+    </div>
+  </form>
+</div>
+{% endblock %}

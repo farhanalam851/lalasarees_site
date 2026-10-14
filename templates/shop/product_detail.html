@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% load static shop_extras %}
+{% block sticky_cta %}{% if product.in_stock %}<form class="sticky-cta" method="post" action="{% url 'cart_add' product.pk %}">{% csrf_token %}<div><b>{{ product.price|inr }}</b><div class="small muted">incl. GST</div></div><input type="hidden" name="qty" value="1"><button class="btn" type="submit">Add to bag</button></form>{% endif %}{% endblock %}
+{% block content %}
+<div class="wrap">
+  <div class="page-head" style="padding-bottom:10px"><nav class="crumbs" aria-label="Breadcrumb"><ol><li><a href="{% url 'home' %}">Home</a></li><li>/</li><li><a href="{% url 'catalog' %}">Sarees</a></li><li>/</li><li><a href="{{ product.category.get_absolute_url }}">{{ product.category.name }}</a></li><li>/</li><li aria-current="page">{{ product.name|truncatechars:40 }}</li></ol></nav></div>
+  <div class="pd">
+    <div class="gallery">
+      <div class="main"><img id="gallery-main" src="{{ gallery.0.url }}" alt="{{ gallery.0.alt }}" width="800" height="1000" fetchpriority="high"></div>
+      {% if gallery|length > 1 %}<div class="thumbs">{% for g in gallery %}<button type="button" data-thumb="{{ g.url }}" data-alt="{{ g.alt }}" {% if forloop.first %}aria-current="true"{% endif %} aria-label="Show photo {{ forloop.counter }}"><img src="{{ g.url }}" alt="{{ g.alt }}" width="70" height="70" loading="lazy"></button>{% endfor %}</div>{% endif %}
+    </div>
+    <div class="pd-info">
+      <h1 style="font-size:clamp(1.6rem,3.4vw,2.3rem)">{{ product.name }}</h1>
+      <div class="rate">{% if total_reviews %}{{ product.avg_rating|stars }} <a href="#reviews">{{ product.avg_rating }} from {{ total_reviews }} review{{ total_reviews|pluralize }}</a>{% else %}<a href="#reviews">Be the first to review</a>{% endif %}</div>
+      <div class="price" style="margin:14px 0 4px"><b>{{ product.price|inr }}</b>{% if product.mrp and product.mrp > product.price %}<s>{{ product.mrp|inr }}</s><span class="off">{{ product.discount_percent }}% off</span>{% endif %}</div>
+      <div class="small muted">Inclusive of {{ product.gst_rate|floatformat:"-2" }}% GST. Shipping calculated at checkout.</div>
+
+      {% if product.wholesale_price %}
+        {% if user.wholesale_approved %}
+        <div class="note ok"><b>Your wholesale price: {{ product.wholesale_price|inr }}</b> per piece when you buy {{ product.wholesale_min_qty }} or more.</div>
+        {% elif user.is_authenticated and user.is_business %}
+        <div class="note">Your business account is being verified. Wholesale pricing for {{ product.wholesale_min_qty }}+ pieces unlocks after approval.</div>
+        {% else %}
+        <div class="note">Reseller? Wholesale pricing applies from {{ product.wholesale_min_qty }} pieces. <a href="{% url 'register' %}?type=business">Create a business account</a> to see it.</div>
+        {% endif %}
+      {% endif %}
+
+      <p class="stock {% if product.stock == 0 %}out{% elif product.stock <= 3 %}low{% else %}in{% endif %}" style="margin:14px 0 0">
+        {% if product.stock == 0 %}Sold out{% elif product.stock <= 3 %}Only {{ product.stock }} left{% else %}In stock{% endif %}</p>
+
+      {% if product.in_stock %}
+      <form method="post" action="{% url 'cart_add' product.pk %}" class="buy">{% csrf_token %}
+        <div><label for="qty">Quantity</label><input class="qty" id="qty" type="number" name="qty" value="1" min="1" max="{{ product.stock }}"></div>
+        <button class="btn" type="submit">Add to bag</button>
+        <button class="btn gold" type="submit" name="buy_now" value="1">Buy now</button>
+      </form>
+      {% endif %}
+
+      <dl class="spec">
+        <dt>Fabric</dt><dd>{{ product.fabric|default:"-" }}</dd>
+        <dt>Colour</dt><dd>{{ product.color|default:"-" }}</dd>
+        <dt>Occasion</dt><dd>{{ product.get_occasion_display }}</dd>
+        <dt>Includes</dt><dd>{{ product.includes|default:"-" }}</dd>
+        <dt>Care</dt><dd>{{ product.care|default:"-" }}</dd>
+        <dt>Item code</dt><dd>{{ product.sku }}</dd>
+      </dl>
+      <h3>About this saree</h3>
+      <p>{{ product.description|linebreaksbr }}</p>
+      <p class="small muted">Colours can look slightly different on screen. Call {{ site.phone1 }} for a live video of the piece.</p>
+    </div>
+  </div>
+
+  <section id="reviews" class="section" style="padding-top:20px">
+    <div class="sec-head"><h2>Ratings and reviews</h2></div>
+    <div class="rev-grid">
+      <div>
+        {% if total_reviews %}
+          <div style="font-family:var(--serif);font-size:3rem;line-height:1">{{ product.avg_rating }}</div>
+          {{ product.avg_rating|stars }} <span class="muted small">{{ total_reviews }} review{{ total_reviews|pluralize }}</span>
+          <div class="bars">{% for star, n, pct in breakdown %}<div class="bar-row"><span>{{ star }} ★</span><span class="bar"><i style="width:{{ pct }}%"></i></span><span>{{ n }}</span></div>{% endfor %}</div>
+        {% else %}<p class="muted">No reviews yet.</p>{% endif %}
+        <div class="panel" style="margin-top:24px">
+          <h3>{% if my_review %}Edit your review{% else %}Write a review{% endif %}</h3>
+          {% if user.is_authenticated %}
+          <form method="post" action="{% url 'add_review' product.slug %}" enctype="multipart/form-data">{% csrf_token %}
+            <div class="field"><label id="rl">Your rating</label>
+              <div class="star-input" role="radiogroup" aria-labelledby="rl">
+                {% for i in "54321" %}<input type="radio" name="rating" id="s{{ i }}" required value="{{ i }}" {% if my_review.rating|stringformat:"s" == i %}checked{% endif %}><label for="s{{ i }}" title="{{ i }} star{{ i|pluralize }}">★</label>{% endfor %}
+              </div>
+            </div>
+            {% for field in form %}{% if field.name != 'rating' %}{% include 'partials/field.html' %}{% endif %}{% endfor %}
+            <button class="btn ink block" type="submit">Post review</button>
+          </form>
+          {% else %}<p><a href="{% url 'login' %}?next={{ request.path }}%23reviews">Log in</a> to share your experience.</p>{% endif %}
+        </div>
+      </div>
+      <div>
+        {% for r in reviews %}
+        <article class="review">
+          {{ r.rating|stars }} <b>{{ r.title }}</b>
+          <div class="small muted">{{ r.user.display_name }} &middot; {{ r.created|date:"j M Y" }}{% if r.verified_purchase %} &middot; <span class="verified">Verified purchase</span>{% endif %}</div>
+          <p style="margin:8px 0 0">{{ r.comment|linebreaksbr }}</p>
+          {% if r.image %}<img class="rv" src="{{ r.image.url }}" alt="Photo from {{ r.user.display_name }}" loading="lazy">{% endif %}
+        </article>
+        {% empty %}<p class="muted">Bought this saree? Tell other buyers how it fits and drapes.</p>{% endfor %}
+      </div>
+    </div>
+  </section>
+
+  {% if related %}
+  <section class="section" style="padding-top:10px"><div class="sec-head"><h2>You may also like</h2></div>
+    <div class="products">{% for p in related %}{% include 'partials/product_card.html' %}{% endfor %}</div></section>
+  {% endif %}
+</div>
+{% endblock %}

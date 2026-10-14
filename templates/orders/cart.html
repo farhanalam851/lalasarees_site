@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% load shop_extras %}
+{% block robots %}noindex,nofollow{% endblock %}
+{% block title %}Your bag | {{ site.store_name }}{% endblock %}
+{% block content %}
+<div class="wrap" style="padding-top:34px">
+  <h1 style="font-size:2.2rem">Your bag</h1>
+  {% if totals.items %}
+  <div class="two-col">
+    <div class="panel">
+      {% for it in totals.items %}
+      <div class="line">
+        <a href="{{ it.product.get_absolute_url }}"><img src="{{ it.product.image.url }}" alt="{{ it.product.name }}" width="96" height="128" style="object-position:{{ it.product.image_position }}"></a>
+        <div>
+          <a href="{{ it.product.get_absolute_url }}"><b>{{ it.product.name }}</b></a>
+          <div class="small muted">{{ it.product.color }} &middot; HSN {{ it.product.hsn_code }} &middot; GST {{ it.rate|floatformat:"-2" }}%</div>
+          <div>{{ it.unit_price|inr }} each{% if it.wholesale %} <span class="status paid">Wholesale price</span>{% endif %}</div>
+          {% if it.hint %}<div class="hint">{{ it.hint }}</div>{% endif %}
+          <div class="qtyform">
+            <form method="post" action="{% url 'cart_update' it.product.pk %}" class="qtyform" style="margin:0">{% csrf_token %}
+              <label class="sr" for="q{{ it.product.pk }}">Quantity</label>
+              <input id="q{{ it.product.pk }}" type="number" name="qty" min="1" max="{{ it.product.stock }}" value="{{ it.qty }}"><button class="btn ghost sm" type="submit">Update</button></form>
+            <form method="post" action="{% url 'cart_remove' it.product.pk %}" style="margin:0">{% csrf_token %}<button class="btn-link small" type="submit">Remove</button></form>
+          </div>
+        </div>
+        <div class="lt"><b>{{ it.gross|inr }}</b></div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="panel sticky">
+      <h2>Summary</h2>
+      <div class="sum">
+        <div><span>Items total</span><span>{{ totals.goods_total|inr:"2" }}</span></div>
+        <div class="small muted"><span>{% if totals.inclusive %}Includes GST of{% else %}GST added{% endif %}</span><span>{{ totals.gst_total|inr:"2" }}</span></div>
+        <div><span>Shipping</span><span>{% if totals.free_shipping %}Free{% else %}Shown at checkout{% endif %}</span></div>
+      </div>
+      {% if not totals.free_shipping %}
+      <div class="progress" aria-hidden="true"><i style="width:{{ totals.free_shipping_pct }}%"></i></div>
+      <p class="small muted">Add {{ totals.free_shipping_gap|inr }} more for free shipping.</p>{% endif %}
+      <a class="btn block" href="{% url 'checkout' %}">Continue to checkout</a>
+      <p class="small center"><a href="{% url 'catalog' %}">Keep shopping</a></p>
+    </div>
+  </div>
+  {% else %}
+  <div class="empty"><h2>Your bag is empty</h2><p class="muted">Find a saree you love and add it here.</p><a class="btn" href="{% url 'catalog' %}">Browse sarees</a></div>
+  {% endif %}
+</div>
+{% endblock %}
