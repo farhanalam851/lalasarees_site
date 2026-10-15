@@ -68,10 +68,10 @@ Open `https://YOUR-PROJECT.vercel.app/healthz/`. Expect `"ok": true, "database":
 ## 7. Custom domain
 Add the domain in Vercel, then set `DJANGO_CANONICAL_HOST=www.yourdomain.in` and redeploy.
 
-## Real photo uploads (Supabase Storage)
+## Real photo uploads (Supabase Storage) - needed for the admin panel and dashboard
 1. Supabase > Storage > New bucket `media`, tick **Public bucket**.
 2. Storage > Settings > **S3 Connection**: copy the endpoint and create an access key (ID and secret).
-3. Add these Vercel variables and redeploy (`PROJECTREF` = the part before `.supabase.co` in your project URL):
+3. Add these Vercel variables, then **Redeploy** (`PROJECTREF` = the part before `.supabase.co` in your project URL):
 
 | Name | Value |
 |---|---|
@@ -81,8 +81,9 @@ Add the domain in Vercel, then set `DJANGO_CANONICAL_HOST=www.yourdomain.in` and
 | `AWS_S3_REGION_NAME` | `ap-south-1` |
 | `AWS_S3_CUSTOM_DOMAIN` | `PROJECTREF.supabase.co/storage/v1/object/public/media` |
 
-The site then stores new uploads in the bucket. The 13 demo photos already in the database point at `products/...` and `categories/...`,
-so upload the files from `static/media/products` and `static/media/categories` into those folders of the bucket (Storage > media > upload), or just re-add products with your own photos.
+4. On your computer, set the same five `AWS_*` variables plus `DATABASE_URL`, then copy the existing photos into the bucket once:
+   `python manage.py upload_static_media`
+5. Test: log in at `/admin/` > Shop > Products > Add, choose a photo, save, and open the product on the site.
 
 ## Limits
 - Uploads over about 4.5 MB fail on Vercel. Resize photos first.
